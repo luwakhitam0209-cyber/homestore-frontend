@@ -28,7 +28,11 @@ function Navbar() {
           </a>
 
           <div className="navbar-actions">
-            <button className="icon-btn" aria-label="Keranjang">
+            <button
+              className="icon-btn"
+              aria-label="Keranjang"
+              onClick={() => navigate("/cart")}
+            >
               🛒 <span className="cart-badge">0</span>
             </button>
             <button className="icon-btn" aria-label="Profil">
