@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
 import { getProductById } from "../services/productService";
 
 function ProductDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -23,6 +24,43 @@ function ProductDetail() {
         setLoading(false);
       });
   }, [id]);
+
+  const handleAddToCart = () => {
+    const existingCart =
+      JSON.parse(localStorage.getItem("cart")) || [];
+
+    const existingProduct = existingCart.find(
+      (item) => item.id === product.id
+    );
+
+    let updatedCart;
+
+    if (existingProduct) {
+      updatedCart = existingCart.map((item) =>
+        item.id === product.id
+          ? {
+              ...item,
+              quantity: item.quantity + 1,
+            }
+          : item
+      );
+    } else {
+      updatedCart = [
+        ...existingCart,
+        {
+          ...product,
+          quantity: 1,
+        },
+      ];
+    }
+
+    localStorage.setItem(
+      "cart",
+      JSON.stringify(updatedCart)
+    );
+
+    navigate("/cart");
+  };
 
   if (loading) {
     return (
@@ -108,7 +146,10 @@ function ProductDetail() {
               </div>
             )}
 
-            <button className="detail-cart-button">
+            <button
+              className="detail-cart-button"
+              onClick={handleAddToCart}
+            >
               <ShoppingCart size={20} />
               Tambah ke Keranjang
             </button>
