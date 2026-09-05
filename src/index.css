@@ -614,3 +614,118 @@
     padding-left: calc(85px + 1.2rem);
   }
 }
+
+/* =========================
+   LOGIN
+========================= */
+
+.login-page {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 20px;
+  background: var(--bg-cream);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 430px;
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 10px 35px rgba(59, 32, 12, 0.12);
+  border: 1px solid var(--border-gold);
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.login-header h1 {
+  margin: 0;
+  font-family: "Cinzel", serif;
+  color: var(--text-dark);
+  font-size: 30px;
+}
+
+.login-header h1 span {
+  color: var(--accent-gold);
+}
+
+.login-header p {
+  margin-top: 8px;
+  color: var(--text-brown);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.form-group input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px 15px;
+  border: 1px solid var(--border-gold);
+  border-radius: 8px;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  outline: none;
+  transition: 0.2s;
+}
+
+.form-group input:focus {
+  border-color: var(--accent-gold);
+  box-shadow: 0 0 0 3px rgba(140, 90, 43, 0.1);
+}
+
+.login-error {
+  background: #fce8e6;
+  color: #b42318;
+  padding: 12px 14px;
+  border-radius: 8px;
+  margin-bottom: 18px;
+  font-size: 14px;
+}
+
+.login-button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent-gold);
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.login-button:hover {
+  background: var(--text-dark);
+}
+
+.login-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.login-register {
+  text-align: center;
+  margin-top: 25px;
+  color: var(--text-brown);
+  font-size: 14px;
+}
+
+.login-register span {
+  color: var(--accent-gold);
+  font-weight: 600;
+  cursor: pointer;
+}

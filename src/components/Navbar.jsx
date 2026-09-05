@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { ShoppingBag, Search, User } from "lucide-react";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -46,9 +47,13 @@ function Navbar() {
             </button>
 
             {/* PROFIL */}
-            <button className="icon-btn" aria-label="Profil">
-              👤
-            </button>
+          <button
+            className="icon-btn"
+            aria-label="Profil"
+            onClick={() => navigate("/login")}
+          >
+            👤
+          </button>
 
           </div>
         </div>
