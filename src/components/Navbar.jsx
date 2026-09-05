@@ -1,10 +1,13 @@
 import React from "react";
-import { ShoppingBag, Search, User } from "lucide-react"; // jika ada lucide-react, atau pakai teks/icon biasa
+import { useNavigate } from "react-router-dom";
 
 function Navbar() {
+  const navigate = useNavigate();
+
   return (
     <nav className="navbar">
       <div className="navbar-container">
+
         {/* LOGO */}
         <a href="/" className="navbar-logo">
           Home<span>Store</span>
@@ -12,7 +15,10 @@ function Navbar() {
 
         {/* SEARCH BAR */}
         <div className="navbar-search">
-          <input type="text" placeholder="Cari produk kebutuhan rumah..." />
+          <input
+            type="text"
+            placeholder="Cari produk kebutuhan rumah..."
+          />
           <button type="submit" aria-label="Cari">
             🔍
           </button>
@@ -23,11 +29,14 @@ function Navbar() {
           <a href="/" className="nav-link active">
             Home
           </a>
+
           <a href="#produk" className="nav-link">
             Produk
           </a>
 
           <div className="navbar-actions">
+
+            {/* KERANJANG */}
             <button
               className="icon-btn"
               aria-label="Keranjang"
@@ -35,9 +44,12 @@ function Navbar() {
             >
               🛒 <span className="cart-badge">0</span>
             </button>
+
+            {/* PROFIL */}
             <button className="icon-btn" aria-label="Profil">
               👤
             </button>
+
           </div>
         </div>
       </div>
