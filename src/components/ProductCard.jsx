@@ -1,6 +1,10 @@
 import { ShoppingCart } from "lucide-react";
 
 function ProductCard({ product }) {
+  // Kalau produk tidak punya gambar, jangan tampilkan card
+  if (!product.image) {
+    return null;
+  }
 
   const handleAddToCart = () => {
     const existingCart =
@@ -41,22 +45,14 @@ function ProductCard({ product }) {
 
   return (
     <div className="product-card">
-
       <div className="product-image">
-        {product.image ? (
-          <img
-            src={product.image}
-            alt={product.name}
-          />
-        ) : (
-          <div className="no-image">
-            Tidak ada gambar
-          </div>
-        )}
+        <img
+          src={product.image}
+          alt={product.name}
+        />
       </div>
 
       <div className="product-info">
-
         <h3>{product.name}</h3>
 
         <p className="product-price">
@@ -74,9 +70,7 @@ function ProductCard({ product }) {
           <ShoppingCart size={18} />
           Tambah ke Keranjang
         </button>
-
       </div>
-
     </div>
   );
 }
