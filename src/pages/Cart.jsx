@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Trash2, Plus, Minus } from "lucide-react";
+import axios from "axios";
 
 function Cart() {
   const [cart, setCart] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -57,6 +59,72 @@ function Cart() {
     0
   );
 
+  const handleCheckout = async () => {
+    if (cart.length === 0) {
+      alert("Keranjang masih kosong.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await axios.post(
+        "http://192.168.1.102:8000/api/payment/create",
+        {
+          user_id: 1,
+          items: cart.map((item) => ({
+            product_id: item.id,
+            quantity: item.quantity,
+          })),
+        }
+      );
+
+      const snapToken = response.data.data.snap_token;
+
+      if (!snapToken) {
+        throw new Error("Snap Token tidak ditemukan.");
+      }
+
+      if (!window.snap) {
+        throw new Error(
+          "Midtrans Snap belum siap. Coba refresh halaman."
+        );
+      }
+
+      window.snap.pay(snapToken, {
+        onSuccess: function () {
+          alert("Pembayaran berhasil!");
+
+          localStorage.removeItem("cart");
+          setCart([]);
+        },
+
+        onPending: function () {
+          alert("Pembayaran masih menunggu.");
+        },
+
+        onError: function () {
+          alert("Pembayaran gagal.");
+        },
+
+        onClose: function () {
+          console.log("Popup pembayaran ditutup.");
+        },
+      });
+    } catch (error) {
+      console.error("Checkout error:", error);
+
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "Terjadi kesalahan saat checkout.";
+
+      alert(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (cart.length === 0) {
     return (
       <div className="cart-page">
@@ -77,7 +145,6 @@ function Cart() {
   return (
     <div className="cart-page">
       <div className="cart-container">
-
         <Link to="/products" className="back-link">
           <ArrowLeft size={18} />
           Kembali ke Produk
@@ -86,18 +153,12 @@ function Cart() {
         <h1>Keranjang Belanja</h1>
 
         <div className="cart-content">
-
           <div className="cart-items">
-
             {cart.map((item) => (
               <div className="cart-item" key={item.id}>
-
                 <div className="cart-item-image">
                   {item.image ? (
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                    />
+                    <img src={item.image} alt={item.name} />
                   ) : (
                     <div className="no-image">
                       Tidak ada gambar
@@ -109,13 +170,15 @@ function Cart() {
                   <h3>{item.name}</h3>
 
                   <p>
-                    Rp {Number(item.price).toLocaleString("id-ID")}
+                    Rp{" "}
+                    {Number(item.price).toLocaleString("id-ID")}
                   </p>
 
                   <div className="quantity-control">
-
                     <button
-                      onClick={() => decreaseQuantity(item.id)}
+                      onClick={() =>
+                        decreaseQuantity(item.id)
+                      }
                     >
                       <Minus size={16} />
                     </button>
@@ -123,16 +186,16 @@ function Cart() {
                     <span>{item.quantity}</span>
 
                     <button
-                      onClick={() => increaseQuantity(item.id)}
+                      onClick={() =>
+                        increaseQuantity(item.id)
+                      }
                     >
                       <Plus size={16} />
                     </button>
-
                   </div>
                 </div>
 
                 <div className="cart-item-right">
-
                   <p>
                     Rp{" "}
                     {(
@@ -146,16 +209,12 @@ function Cart() {
                   >
                     <Trash2 size={18} />
                   </button>
-
                 </div>
-
               </div>
             ))}
-
           </div>
 
           <div className="cart-summary">
-
             <h2>Ringkasan Pesanan</h2>
 
             <div className="cart-total">
@@ -166,14 +225,15 @@ function Cart() {
               </strong>
             </div>
 
-            <button className="checkout-button">
-              Checkout
+            <button
+              className="checkout-button"
+              onClick={handleCheckout}
+              disabled={loading}
+            >
+              {loading ? "Memproses..." : "Checkout"}
             </button>
-
           </div>
-
         </div>
-
       </div>
     </div>
   );
