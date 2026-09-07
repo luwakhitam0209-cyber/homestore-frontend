@@ -133,9 +133,9 @@ function Cart() {
 
           <p>Keranjang kamu masih kosong.</p>
 
-          <Link to="/products" className="back-button">
+          <Link to="/" className="back-button">
             <ArrowLeft size={18} />
-            Kembali ke Produk
+            Kembali
           </Link>
         </div>
       </div>
@@ -145,9 +145,9 @@ function Cart() {
   return (
     <div className="cart-page">
       <div className="cart-container">
-        <Link to="/products" className="back-link">
+        <Link to="/" className="back-link">
           <ArrowLeft size={18} />
-          Kembali ke Produk
+          Kembali
         </Link>
 
         <h1>Keranjang Belanja</h1>
