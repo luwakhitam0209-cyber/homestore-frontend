@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Trash2, Plus, Minus } from "lucide-react";
-import axios from "axios";
+import api from "../services/api";
 
 function Cart() {
   const [cart, setCart] = useState([]);
@@ -68,18 +68,15 @@ function Cart() {
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        "http://192.168.1.102:8000/api/payment/create",
-        {
-          user_id: 1,
-          items: cart.map((item) => ({
-            product_id: item.id,
-            quantity: item.quantity,
-          })),
-        }
-      );
+      const response = await api.post("/payment/create", {
+        user_id: 1,
+        items: cart.map((item) => ({
+          product_id: item.id,
+          quantity: item.quantity,
+        })),
+      });
 
-      const snapToken = response.data.data.snap_token;
+      const snapToken = response.data?.data?.snap_token;
 
       if (!snapToken) {
         throw new Error("Snap Token tidak ditemukan.");
@@ -87,23 +84,29 @@ function Cart() {
 
       if (!window.snap) {
         throw new Error(
-          "Midtrans Snap belum siap. Coba refresh halaman."
+          "Midtrans Snap belum siap. Silakan refresh halaman."
         );
       }
 
       window.snap.pay(snapToken, {
-        onSuccess: function () {
+        onSuccess: function (result) {
+          console.log("Pembayaran berhasil:", result);
+
           alert("Pembayaran berhasil!");
 
           localStorage.removeItem("cart");
           setCart([]);
         },
 
-        onPending: function () {
+        onPending: function (result) {
+          console.log("Pembayaran pending:", result);
+
           alert("Pembayaran masih menunggu.");
         },
 
-        onError: function () {
+        onError: function (result) {
+          console.error("Pembayaran gagal:", result);
+
           alert("Pembayaran gagal.");
         },
 
@@ -145,6 +148,7 @@ function Cart() {
   return (
     <div className="cart-page">
       <div className="cart-container">
+
         <Link to="/" className="back-link">
           <ArrowLeft size={18} />
           Kembali
@@ -153,12 +157,17 @@ function Cart() {
         <h1>Keranjang Belanja</h1>
 
         <div className="cart-content">
+
           <div className="cart-items">
             {cart.map((item) => (
               <div className="cart-item" key={item.id}>
+
                 <div className="cart-item-image">
                   {item.image ? (
-                    <img src={item.image} alt={item.name} />
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                    />
                   ) : (
                     <div className="no-image">
                       Tidak ada gambar
@@ -175,6 +184,7 @@ function Cart() {
                   </p>
 
                   <div className="quantity-control">
+
                     <button
                       onClick={() =>
                         decreaseQuantity(item.id)
@@ -192,10 +202,12 @@ function Cart() {
                     >
                       <Plus size={16} />
                     </button>
+
                   </div>
                 </div>
 
                 <div className="cart-item-right">
+
                   <p>
                     Rp{" "}
                     {(
@@ -209,12 +221,15 @@ function Cart() {
                   >
                     <Trash2 size={18} />
                   </button>
+
                 </div>
+
               </div>
             ))}
           </div>
 
           <div className="cart-summary">
+
             <h2>Ringkasan Pesanan</h2>
 
             <div className="cart-total">
@@ -232,7 +247,9 @@ function Cart() {
             >
               {loading ? "Memproses..." : "Checkout"}
             </button>
+
           </div>
+
         </div>
       </div>
     </div>
