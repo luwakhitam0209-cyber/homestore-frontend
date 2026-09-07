@@ -6,8 +6,13 @@ function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const [mode, setMode] = useState("login");
+
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -25,13 +30,13 @@ function Login() {
         password,
       });
 
-      // Simpan data user
-      localStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.setItem(
+        "user",
+        JSON.stringify(response.data.user)
+      );
 
-      // Penanda bahwa user sudah login
       localStorage.setItem("isLoggedIn", "true");
 
-      // Kembali ke halaman sebelumnya
       navigate(from);
     } catch (error) {
       console.error("Login gagal:", error);
@@ -45,17 +50,96 @@ function Login() {
     }
   };
 
+  const handleSignUp = (e) => {
+    e.preventDefault();
+
+    setError("");
+
+    // Backend Sign Up belum dibuat.
+    // Untuk sementara hanya pengecekan tampilan.
+
+    if (password !== confirmPassword) {
+      setError("Password dan konfirmasi password tidak sama.");
+      return;
+    }
+
+    alert("Form Sign Up siap. Backend akan dibuat nanti.");
+  };
+
+  const switchMode = (newMode) => {
+    setMode(newMode);
+    setError("");
+
+    setName("");
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+  };
+
   return (
     <div className="login-page">
       <div className="login-card">
+
+        {/* HEADER */}
         <div className="login-header">
-          <h1>Home<span>Store</span></h1>
-          <p>Masuk ke akun kamu</p>
+          <h1>
+            Home<span>Store</span>
+          </h1>
+
+          <p>
+            {mode === "login"
+              ? "Masuk ke akun kamu"
+              : "Buat akun baru"}
+          </p>
         </div>
 
-        <form onSubmit={handleLogin}>
+        {/* LOGIN / SIGN UP NAVIGATION */}
+        <div className="auth-tabs">
+          <button
+            type="button"
+            className={mode === "signup" ? "active" : ""}
+            onClick={() => switchMode("signup")}
+          >
+            Sign Up
+          </button>
+
+          <button
+            type="button"
+            className={mode === "login" ? "active" : ""}
+            onClick={() => switchMode("login")}
+          >
+            Login
+          </button>
+        </div>
+
+        {/* FORM */}
+        <form
+          onSubmit={
+            mode === "login"
+              ? handleLogin
+              : handleSignUp
+          }
+        >
+
+          {/* NAMA - HANYA SIGN UP */}
+          {mode === "signup" && (
+            <div className="form-group">
+              <label>Nama</label>
+
+              <input
+                type="text"
+                placeholder="Masukkan nama"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+          )}
+
+          {/* EMAIL */}
           <div className="form-group">
             <label>Email</label>
+
             <input
               type="email"
               placeholder="Masukkan email"
@@ -65,8 +149,10 @@ function Login() {
             />
           </div>
 
+          {/* PASSWORD */}
           <div className="form-group">
             <label>Password</label>
+
             <input
               type="password"
               placeholder="Masukkan password"
@@ -76,27 +162,67 @@ function Login() {
             />
           </div>
 
+          {/* CONFIRM PASSWORD - HANYA SIGN UP */}
+          {mode === "signup" && (
+            <div className="form-group">
+              <label>Konfirmasi Password</label>
+
+              <input
+                type="password"
+                placeholder="Ulangi password"
+                value={confirmPassword}
+                onChange={(e) =>
+                  setConfirmPassword(e.target.value)
+                }
+                required
+              />
+            </div>
+          )}
+
+          {/* ERROR */}
           {error && (
             <div className="login-error">
               {error}
             </div>
           )}
 
+          {/* BUTTON */}
           <button
             type="submit"
             className="login-button"
             disabled={loading}
           >
-            {loading ? "Memproses..." : "Login"}
+            {loading
+              ? "Memproses..."
+              : mode === "login"
+              ? "Login"
+              : "Sign Up"}
           </button>
         </form>
 
+        {/* FOOTER */}
         <div className="login-register">
           <p>
-            Belum punya akun?{" "}
-            <span>Daftar</span>
+            {mode === "login"
+              ? "Belum punya akun? "
+              : "Sudah punya akun? "}
+
+            <span
+              onClick={() =>
+                switchMode(
+                  mode === "login"
+                    ? "signup"
+                    : "login"
+                )
+              }
+            >
+              {mode === "login"
+                ? "Sign Up"
+                : "Login"}
+            </span>
           </p>
         </div>
+
       </div>
     </div>
   );
