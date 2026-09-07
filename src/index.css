@@ -729,3 +729,39 @@
   font-weight: 600;
   cursor: pointer;
 }
+
+```css
+.auth-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 35px;
+  margin: 10px 0 30px;
+  border-bottom: 1px solid #ddd;
+}
+
+.auth-tabs button {
+  background: none;
+  border: none;
+  padding: 10px 5px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #777;
+  cursor: pointer;
+  position: relative;
+}
+
+.auth-tabs button.active {
+  color: #7a9b76;
+  font-weight: 600;
+}
+
+.auth-tabs button.active::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #7a9b76;
+}
+```
