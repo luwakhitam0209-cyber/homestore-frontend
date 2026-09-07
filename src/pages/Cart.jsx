@@ -7,7 +7,9 @@ function Cart() {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // RajaOngkir
+  // =========================
+  // SHIPPING STATE
+  // =========================
   const [destinationSearch, setDestinationSearch] = useState("");
   const [destinations, setDestinations] = useState([]);
   const [selectedDestination, setSelectedDestination] = useState(null);
@@ -18,13 +20,18 @@ function Cart() {
   const [shippingLoading, setShippingLoading] = useState(false);
 
   useEffect(() => {
-    const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
+    const savedCart =
+      JSON.parse(localStorage.getItem("cart")) || [];
+
     setCart(savedCart);
   }, []);
 
   const saveCart = (updatedCart) => {
     setCart(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    localStorage.setItem(
+      "cart",
+      JSON.stringify(updatedCart)
+    );
   };
 
   const increaseQuantity = (id) => {
@@ -40,7 +47,10 @@ function Cart() {
     });
 
     saveCart(updatedCart);
+
+    // Ongkir perlu dihitung ulang
     setSelectedShipping(null);
+    setShippingOptions([]);
   };
 
   const decreaseQuantity = (id) => {
@@ -58,54 +68,93 @@ function Cart() {
       .filter((item) => item.quantity > 0);
 
     saveCart(updatedCart);
+
+    // Ongkir perlu dihitung ulang
     setSelectedShipping(null);
+    setShippingOptions([]);
   };
 
   const removeItem = (id) => {
-    const updatedCart = cart.filter((item) => item.id !== id);
+    const updatedCart = cart.filter(
+      (item) => item.id !== id
+    );
 
     saveCart(updatedCart);
+
+    // Ongkir perlu dihitung ulang
     setSelectedShipping(null);
+    setShippingOptions([]);
   };
 
+  // =========================
+  // SUBTOTAL
+  // =========================
   const subtotal = cart.reduce(
-    (sum, item) => sum + Number(item.price) * item.quantity,
+    (sum, item) =>
+      sum + Number(item.price) * item.quantity,
     0
   );
-
-  // Berat dalam gram.
-  // Produk yang belum mempunyai weight sementara dianggap 1 kg.
-  const totalWeight = cart.reduce(
-    (sum, item) => sum + Number(item.weight || 1000) * item.quantity,
-    0
-  );
-
-  const shippingCost = Number(selectedShipping?.cost || 0);
-
-  const grandTotal = subtotal + shippingCost;
 
   // =========================
-  // CARI DESTINATION
+  // TOTAL BERAT
+  // gram
+  // =========================
+  const totalWeight = cart.reduce(
+    (sum, item) =>
+      sum +
+      Number(item.weight || 1000) *
+        item.quantity,
+    0
+  );
+
+  // =========================
+  // ONGKIR
+  // =========================
+  const shippingCost = Number(
+    selectedShipping?.cost || 0
+  );
+
+  // =========================
+  // TOTAL AKHIR
+  // =========================
+  const grandTotal =
+    subtotal + shippingCost;
+
+  // =========================
+  // CARI TUJUAN
   // =========================
   const searchDestination = async () => {
-    if (destinationSearch.trim().length < 2) {
-      alert("Masukkan minimal 2 karakter.");
+    if (
+      destinationSearch.trim().length < 2
+    ) {
+      alert(
+        "Masukkan minimal 2 karakter."
+      );
       return;
     }
 
     try {
-      const response = await api.get("/shipping/destinations", {
-        params: {
-          search: destinationSearch,
-        },
-      });
+      const response = await api.get(
+        "/shipping/destinations",
+        {
+          params: {
+            search: destinationSearch,
+          },
+        }
+      );
 
-      setDestinations(response.data?.data || []);
+      setDestinations(
+        response.data?.data || []
+      );
     } catch (error) {
-      console.error("Gagal mencari tujuan:", error);
+      console.error(
+        "Gagal mencari tujuan:",
+        error
+      );
+
       alert(
         error.response?.data?.message ||
-          "Gagal mencari alamat tujuan."
+          "Gagal mencari alamat."
       );
     }
   };
@@ -115,7 +164,9 @@ function Cart() {
   // =========================
   const calculateShipping = async () => {
     if (!selectedDestination) {
-      alert("Pilih alamat tujuan terlebih dahulu.");
+      alert(
+        "Pilih tujuan pengiriman terlebih dahulu."
+      );
       return;
     }
 
@@ -126,35 +177,46 @@ function Cart() {
 
     setShippingLoading(true);
     setSelectedShipping(null);
+    setShippingOptions([]);
 
     try {
-      const response = await api.post("/shipping/cost", {
-        destination: selectedDestination.id,
-        weight: totalWeight,
-        courier: courier,
-      });
+      const response = await api.post(
+        "/shipping/cost",
+        {
+          destination:
+            selectedDestination.id,
 
-      const options = response.data?.data || [];
+          weight: totalWeight,
+
+          courier: courier,
+        }
+      );
+
+      const options =
+        response.data?.data || [];
 
       if (options.length === 0) {
-        alert("Tidak ada layanan pengiriman untuk tujuan tersebut.");
-        setShippingOptions([]);
+        alert(
+          "Tidak ada layanan pengiriman."
+        );
         return;
       }
 
       setShippingOptions(options);
 
-      // Pilih layanan pertama otomatis
+      // pilih layanan pertama
       setSelectedShipping(options[0]);
+
     } catch (error) {
-      console.error("Gagal menghitung ongkir:", error);
+      console.error(
+        "Gagal menghitung ongkir:",
+        error
+      );
 
-      const message =
+      alert(
         error.response?.data?.message ||
-        "Gagal menghitung ongkir.";
-
-      alert(message);
-      setShippingOptions([]);
+          "Gagal menghitung ongkir."
+      );
     } finally {
       setShippingLoading(false);
     }
@@ -165,44 +227,60 @@ function Cart() {
   // =========================
   const handleCheckout = async () => {
     if (cart.length === 0) {
-      alert("Keranjang masih kosong.");
+      alert(
+        "Keranjang masih kosong."
+      );
       return;
     }
 
     if (!selectedDestination) {
-      alert("Silakan pilih alamat tujuan.");
+      alert(
+        "Pilih tujuan pengiriman."
+      );
       return;
     }
 
     if (!selectedShipping) {
-      alert("Silakan pilih layanan pengiriman.");
+      alert(
+        "Pilih layanan pengiriman."
+      );
       return;
     }
 
     setLoading(true);
 
     try {
-      const response = await api.post("/payment/create", {
-        user_id: 1,
+      const response = await api.post(
+        "/payment/create",
+        {
+          user_id: 1,
 
-        items: cart.map((item) => ({
-          product_id: item.id,
-          quantity: item.quantity,
-        })),
+          items: cart.map((item) => ({
+            product_id: item.id,
+            quantity: item.quantity,
+          })),
 
-        shipping_cost: shippingCost,
+          shipping_cost:
+            shippingCost,
 
-        shipping_destination: selectedDestination.label,
+          shipping_destination:
+            selectedDestination.label,
 
-        shipping_courier: selectedShipping.name,
+          shipping_courier:
+            selectedShipping.code,
 
-        shipping_service: selectedShipping.service,
-      });
+          shipping_service:
+            selectedShipping.service,
+        }
+      );
 
-      const snapToken = response.data?.data?.snap_token;
+      const snapToken =
+        response.data?.data?.snap_token;
 
       if (!snapToken) {
-        throw new Error("Snap Token tidak ditemukan.");
+        throw new Error(
+          "Snap Token tidak ditemukan."
+        );
       }
 
       if (!window.snap) {
@@ -211,55 +289,91 @@ function Cart() {
         );
       }
 
-      window.snap.pay(snapToken, {
-        onSuccess: function (result) {
-          console.log("Pembayaran berhasil:", result);
+      window.snap.pay(
+        snapToken,
+        {
+          onSuccess: function (result) {
+            console.log(
+              "Pembayaran berhasil:",
+              result
+            );
 
-          alert("Pembayaran berhasil!");
+            alert(
+              "Pembayaran berhasil!"
+            );
 
-          localStorage.removeItem("cart");
-          setCart([]);
-        },
+            localStorage.removeItem(
+              "cart"
+            );
 
-        onPending: function (result) {
-          console.log("Pembayaran pending:", result);
+            setCart([]);
+          },
 
-          alert("Pembayaran masih menunggu.");
-        },
+          onPending: function (result) {
+            console.log(
+              "Pembayaran pending:",
+              result
+            );
 
-        onError: function (result) {
-          console.error("Pembayaran gagal:", result);
+            alert(
+              "Pembayaran masih menunggu."
+            );
+          },
 
-          alert("Pembayaran gagal.");
-        },
+          onError: function (result) {
+            console.error(
+              "Pembayaran gagal:",
+              result
+            );
 
-        onClose: function () {
-          console.log("Popup pembayaran ditutup.");
-        },
-      });
+            alert(
+              "Pembayaran gagal."
+            );
+          },
+
+          onClose: function () {
+            console.log(
+              "Popup Midtrans ditutup."
+            );
+          },
+        }
+      );
+
     } catch (error) {
-      console.error("Checkout error:", error);
+      console.error(
+        "Checkout error:",
+        error
+      );
 
-      const message =
+      alert(
         error.response?.data?.message ||
-        error.message ||
-        "Terjadi kesalahan saat checkout.";
-
-      alert(message);
+          error.message ||
+          "Terjadi kesalahan saat checkout."
+      );
     } finally {
       setLoading(false);
     }
   };
 
+  // =========================
+  // CART KOSONG
+  // =========================
   if (cart.length === 0) {
     return (
       <div className="cart-page">
         <div className="cart-container">
-          <h1>Keranjang Belanja</h1>
+          <h1>
+            Keranjang Belanja
+          </h1>
 
-          <p>Keranjang kamu masih kosong.</p>
+          <p>
+            Keranjang kamu masih kosong.
+          </p>
 
-          <Link to="/" className="back-button">
+          <Link
+            to="/"
+            className="back-button"
+          >
             <ArrowLeft size={18} />
             Kembali
           </Link>
@@ -272,18 +386,30 @@ function Cart() {
     <div className="cart-page">
       <div className="cart-container">
 
-        <Link to="/" className="back-link">
+        <Link
+          to="/"
+          className="back-link"
+        >
           <ArrowLeft size={18} />
           Kembali
         </Link>
 
-        <h1>Keranjang Belanja</h1>
+        <h1>
+          Keranjang Belanja
+        </h1>
 
         <div className="cart-content">
 
+          {/* =========================
+              CART ITEMS
+          ========================= */}
           <div className="cart-items">
+
             {cart.map((item) => (
-              <div className="cart-item" key={item.id}>
+              <div
+                className="cart-item"
+                key={item.id}
+              >
 
                 <div className="cart-item-image">
                   {item.image ? (
@@ -300,28 +426,40 @@ function Cart() {
 
                 <div className="cart-item-info">
 
-                  <h3>{item.name}</h3>
+                  <h3>
+                    {item.name}
+                  </h3>
 
                   <p>
                     Rp{" "}
-                    {Number(item.price).toLocaleString("id-ID")}
+                    {Number(
+                      item.price
+                    ).toLocaleString(
+                      "id-ID"
+                    )}
                   </p>
 
                   <div className="quantity-control">
 
                     <button
                       onClick={() =>
-                        decreaseQuantity(item.id)
+                        decreaseQuantity(
+                          item.id
+                        )
                       }
                     >
                       <Minus size={16} />
                     </button>
 
-                    <span>{item.quantity}</span>
+                    <span>
+                      {item.quantity}
+                    </span>
 
                     <button
                       onClick={() =>
-                        increaseQuantity(item.id)
+                        increaseQuantity(
+                          item.id
+                        )
                       }
                     >
                       <Plus size={16} />
@@ -336,8 +474,11 @@ function Cart() {
                   <p>
                     Rp{" "}
                     {(
-                      Number(item.price) * item.quantity
-                    ).toLocaleString("id-ID")}
+                      Number(item.price) *
+                      item.quantity
+                    ).toLocaleString(
+                      "id-ID"
+                    )}
                   </p>
 
                   <button
@@ -353,76 +494,116 @@ function Cart() {
 
               </div>
             ))}
+
           </div>
 
           {/* =========================
               SHIPPING
           ========================= */}
-
           <div className="shipping-section">
 
-            <h2>Pengiriman</h2>
+            <h2>
+              Pengiriman
+            </h2>
 
             <p>
-              Total berat:{" "}
+              Berat paket:{" "}
               <strong>
-                {totalWeight.toLocaleString("id-ID")} gram
+                {totalWeight.toLocaleString(
+                  "id-ID"
+                )}{" "}
+                gram
               </strong>
             </p>
 
+            {/* SEARCH DESTINATION */}
             <div className="destination-search">
 
               <input
                 type="text"
                 placeholder="Cari kota / kecamatan..."
-                value={destinationSearch}
+                value={
+                  destinationSearch
+                }
                 onChange={(e) =>
-                  setDestinationSearch(e.target.value)
+                  setDestinationSearch(
+                    e.target.value
+                  )
                 }
               />
 
               <button
                 type="button"
-                onClick={searchDestination}
+                onClick={
+                  searchDestination
+                }
               >
                 Cari
               </button>
 
             </div>
 
+            {/* DESTINATION RESULT */}
             {destinations.length > 0 && (
               <div className="destination-list">
 
-                {destinations.map((destination) => (
-                  <button
-                    key={destination.id}
-                    type="button"
-                    className={
-                      selectedDestination?.id === destination.id
-                        ? "destination-option selected"
-                        : "destination-option"
-                    }
-                    onClick={() => {
-                      setSelectedDestination(destination);
-                      setDestinations([]);
-                      setSelectedShipping(null);
-                      setShippingOptions([]);
-                    }}
-                  >
-                    {destination.label}
-                  </button>
-                ))}
+                {destinations.map(
+                  (destination) => (
+                    <button
+                      type="button"
+                      key={
+                        destination.id
+                      }
+                      className={
+                        selectedDestination?.id ===
+                        destination.id
+                          ? "destination-option selected"
+                          : "destination-option"
+                      }
+                      onClick={() => {
+                        setSelectedDestination(
+                          destination
+                        );
+
+                        setDestinations(
+                          []
+                        );
+
+                        setSelectedShipping(
+                          null
+                        );
+
+                        setShippingOptions(
+                          []
+                        );
+                      }}
+                    >
+                      {destination.label}
+                    </button>
+                  )
+                )}
 
               </div>
             )}
 
+            {/* SELECTED DESTINATION */}
             {selectedDestination && (
               <div className="selected-destination">
-                <strong>Tujuan:</strong>
-                <p>{selectedDestination.label}</p>
+
+                <strong>
+                  Tujuan Pengiriman
+                </strong>
+
+                <p>
+                  {
+                    selectedDestination.label
+                  }
+                </p>
+
               </div>
             )}
 
+            {/* COURIER */}
             <div className="courier-section">
 
               <label htmlFor="courier">
@@ -433,11 +614,20 @@ function Cart() {
                 id="courier"
                 value={courier}
                 onChange={(e) => {
-                  setCourier(e.target.value);
-                  setSelectedShipping(null);
-                  setShippingOptions([]);
+                  setCourier(
+                    e.target.value
+                  );
+
+                  setSelectedShipping(
+                    null
+                  );
+
+                  setShippingOptions(
+                    []
+                  );
                 }}
               >
+
                 <option value="">
                   -- Pilih Kurir --
                 </option>
@@ -453,12 +643,17 @@ function Cart() {
                 <option value="sicepat">
                   SiCepat
                 </option>
+
               </select>
 
               <button
                 type="button"
-                onClick={calculateShipping}
-                disabled={shippingLoading}
+                onClick={
+                  calculateShipping
+                }
+                disabled={
+                  shippingLoading
+                }
               >
                 {shippingLoading
                   ? "Menghitung..."
@@ -467,47 +662,68 @@ function Cart() {
 
             </div>
 
-            {shippingOptions.length > 0 && (
+            {/* SHIPPING OPTIONS */}
+            {shippingOptions.length >
+              0 && (
               <div className="shipping-options">
 
-                <h3>Layanan Pengiriman</h3>
+                <h3>
+                  Pilih Layanan
+                </h3>
 
-                {shippingOptions.map((option, index) => (
-                  <button
-                    key={`${option.code}-${option.service}-${index}`}
-                    type="button"
-                    className={
-                      selectedShipping?.service ===
-                      option.service
-                        ? "shipping-option selected"
-                        : "shipping-option"
-                    }
-                    onClick={() =>
-                      setSelectedShipping(option)
-                    }
-                  >
-                    <div>
+                {shippingOptions.map(
+                  (
+                    option,
+                    index
+                  ) => (
+                    <button
+                      type="button"
+                      key={`${option.code}-${option.service}-${index}`}
+                      className={
+                        selectedShipping?.service ===
+                        option.service
+                          ? "shipping-option selected"
+                          : "shipping-option"
+                      }
+                      onClick={() =>
+                        setSelectedShipping(
+                          option
+                        )
+                      }
+                    >
+
+                      <div>
+
+                        <strong>
+                          {option.service}
+                        </strong>
+
+                        <small>
+                          {
+                            option.description
+                          }
+                        </small>
+
+                        <small>
+                          Estimasi:{" "}
+                          {option.etd ||
+                            "-"}
+                        </small>
+
+                      </div>
+
                       <strong>
-                        {option.name} - {option.service}
+                        Rp{" "}
+                        {Number(
+                          option.cost
+                        ).toLocaleString(
+                          "id-ID"
+                        )}
                       </strong>
 
-                      <small>
-                        {option.description}
-                      </small>
-
-                      <small>
-                        Estimasi: {option.etd || "-"}
-                      </small>
-                    </div>
-
-                    <strong>
-                      Rp{" "}
-                      {Number(option.cost).toLocaleString(
-                        "id-ID"
-                      )}
-                    </strong>
-                  </button>
-                ))}
+                    </button>
+                  )
+                )}
 
               </div>
             )}
@@ -517,45 +733,66 @@ function Cart() {
           {/* =========================
               SUMMARY
           ========================= */}
-
           <div className="cart-summary">
 
-            <h2>Ringkasan Pesanan</h2>
+            <h2>
+              Ringkasan Pesanan
+            </h2>
 
             <div className="cart-total">
-              <span>Subtotal</span>
+              <span>
+                Subtotal
+              </span>
 
               <strong>
-                Rp {subtotal.toLocaleString("id-ID")}
+                Rp{" "}
+                {subtotal.toLocaleString(
+                  "id-ID"
+                )}
               </strong>
             </div>
 
             <div className="cart-total">
-              <span>Ongkir</span>
+              <span>
+                Ongkir
+              </span>
 
               <strong>
-                Rp {shippingCost.toLocaleString("id-ID")}
+                Rp{" "}
+                {shippingCost.toLocaleString(
+                  "id-ID"
+                )}
               </strong>
             </div>
 
             {selectedShipping && (
               <p>
-                {selectedShipping.name} -{" "}
-                {selectedShipping.service}
+                {selectedShipping.name}{" "}
+                -{" "}
+                {
+                  selectedShipping.service
+                }
               </p>
             )}
 
             <div className="cart-total">
-              <span>Total</span>
+              <span>
+                Total
+              </span>
 
               <strong>
-                Rp {grandTotal.toLocaleString("id-ID")}
+                Rp{" "}
+                {grandTotal.toLocaleString(
+                  "id-ID"
+                )}
               </strong>
             </div>
 
             <button
               className="checkout-button"
-              onClick={handleCheckout}
+              onClick={
+                handleCheckout
+              }
               disabled={
                 loading ||
                 !selectedDestination ||

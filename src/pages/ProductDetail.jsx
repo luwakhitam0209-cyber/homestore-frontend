@@ -132,11 +132,11 @@ function ProductDetail() {
               </div>
             )}
 
-            {product.detail?.weight && (
-              <p className="product-weight">
-                Berat: {product.detail.weight} gram
-              </p>
-            )}
+            {product.weight && (
+  <p className="product-weight">
+    Berat: {product.weight} gram
+  </p>
+)}
 
             {product.store && (
               <div className="product-store">
