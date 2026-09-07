@@ -12,9 +12,9 @@ import "./App.css";
 
 function App() {
   useEffect(() => {
-    // Load Midtrans Snap.js Sandbox
-    const script = document.createElement("script");
+    if (window.snap) return;
 
+    const script = document.createElement("script");
     script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
     script.setAttribute(
       "data-client-key",
