@@ -616,7 +616,7 @@
 }
 
 /* =========================
-   LOGIN
+   LOGIN & SIGN UP
 ========================= */
 
 .login-page {
@@ -640,7 +640,7 @@
 
 .login-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .login-header h1 {
@@ -659,6 +659,63 @@
   color: var(--text-brown);
 }
 
+
+/* =========================
+   LOGIN / SIGN UP TABS
+========================= */
+
+.auth-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 35px;
+  margin: 0 0 30px;
+  border-bottom: 1px solid var(--border-gold);
+}
+
+.auth-tabs button {
+  position: relative;
+  background: none;
+  border: none;
+  padding: 10px 5px;
+  margin-bottom: -1px;
+
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+
+  color: var(--text-brown);
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.auth-tabs button:hover {
+  color: var(--accent-gold);
+}
+
+.auth-tabs button.active {
+  color: var(--accent-gold);
+  font-weight: 600;
+}
+
+.auth-tabs button.active::after {
+  content: "";
+  position: absolute;
+
+  bottom: 0;
+  left: 0;
+
+  width: 100%;
+  height: 2px;
+
+  background: var(--accent-gold);
+}
+
+
+/* =========================
+   FORM
+========================= */
+
 .form-group {
   margin-bottom: 20px;
 }
@@ -666,6 +723,7 @@
 .form-group label {
   display: block;
   margin-bottom: 8px;
+
   font-weight: 600;
   color: var(--text-dark);
 }
@@ -673,10 +731,14 @@
 .form-group input {
   width: 100%;
   box-sizing: border-box;
+
   padding: 13px 15px;
+
   border: 1px solid var(--border-gold);
   border-radius: 8px;
+
   font-family: "Plus Jakarta Sans", sans-serif;
+
   outline: none;
   transition: 0.2s;
 }
@@ -686,24 +748,42 @@
   box-shadow: 0 0 0 3px rgba(140, 90, 43, 0.1);
 }
 
+
+/* =========================
+   ERROR
+========================= */
+
 .login-error {
   background: #fce8e6;
   color: #b42318;
+
   padding: 12px 14px;
   border-radius: 8px;
+
   margin-bottom: 18px;
+
   font-size: 14px;
 }
+
+
+/* =========================
+   BUTTON
+========================= */
 
 .login-button {
   width: 100%;
   padding: 14px;
+
   border: none;
   border-radius: 8px;
+
   background: var(--accent-gold);
   color: white;
+
+  font-family: "Plus Jakarta Sans", sans-serif;
   font-size: 15px;
   font-weight: 600;
+
   cursor: pointer;
   transition: 0.2s;
 }
@@ -717,9 +797,15 @@
   cursor: not-allowed;
 }
 
+
+/* =========================
+   BOTTOM TEXT
+========================= */
+
 .login-register {
   text-align: center;
   margin-top: 25px;
+
   color: var(--text-brown);
   font-size: 14px;
 }
@@ -730,37 +816,6 @@
   cursor: pointer;
 }
 
-```css
-.auth-tabs {
-  display: flex;
-  justify-content: center;
-  gap: 35px;
-  margin: 10px 0 30px;
-  border-bottom: 1px solid #ddd;
-}
-
-.auth-tabs button {
-  background: none;
-  border: none;
-  padding: 10px 5px;
-  font-size: 16px;
-  font-weight: 500;
-  color: #777;
-  cursor: pointer;
-  position: relative;
-}
-
-.auth-tabs button.active {
-  color: #7a9b76;
-  font-weight: 600;
-}
-
-.auth-tabs button.active::after {
-  content: "";
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: #7a9b76;
+.login-register span:hover {
+  text-decoration: underline;
 }
