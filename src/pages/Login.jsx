@@ -18,6 +18,11 @@ function Login() {
 
   const from = location.state?.from || "/";
 
+
+  // =========================
+  // LOGIN
+  // =========================
+
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -41,46 +46,108 @@ function Login() {
     } catch (error) {
       console.error("Login gagal:", error);
 
-      setError(
-        error.response?.data?.message ||
+      if (error.response?.data?.errors) {
+        const errors = error.response.data.errors;
+
+        setError(
+          errors.email?.[0] ||
+          errors.password?.[0] ||
           "Email atau password salah."
-      );
+        );
+      } else {
+        setError(
+          error.response?.data?.message ||
+          "Email atau password salah."
+        );
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSignUp = (e) => {
+
+  // =========================
+  // SIGN UP
+  // =========================
+
+  const handleSignUp = async (e) => {
     e.preventDefault();
 
     setError("");
-
-    // Backend Sign Up belum dibuat.
-    // Untuk sementara hanya pengecekan tampilan.
 
     if (password !== confirmPassword) {
       setError("Password dan konfirmasi password tidak sama.");
       return;
     }
 
-    alert("Form Sign Up siap. Backend akan dibuat nanti.");
+    setLoading(true);
+
+    try {
+      const response = await api.post("/register", {
+        name,
+        email,
+        password,
+        password_confirmation: confirmPassword,
+      });
+
+      console.log("Registrasi berhasil:", response.data);
+
+      // Setelah register berhasil,
+      // langsung pindah ke mode login
+      setMode("login");
+
+      // Bersihkan password
+      setPassword("");
+      setConfirmPassword("");
+
+      // Tampilkan pesan
+      setError("Registrasi berhasil! Silakan login.");
+    } catch (error) {
+      console.error("Registrasi gagal:", error);
+
+      if (error.response?.data?.errors) {
+        const errors = error.response.data.errors;
+
+        setError(
+          errors.email?.[0] ||
+          errors.password?.[0] ||
+          errors.name?.[0] ||
+          "Data registrasi tidak valid."
+        );
+      } else {
+        setError(
+          error.response?.data?.message ||
+          "Registrasi gagal."
+        );
+      }
+    } finally {
+      setLoading(false);
+    }
   };
+
+
+  // =========================
+  // SWITCH LOGIN / SIGN UP
+  // =========================
 
   const switchMode = (newMode) => {
     setMode(newMode);
-    setError("");
 
+    setError("");
     setName("");
     setEmail("");
     setPassword("");
     setConfirmPassword("");
   };
 
+
   return (
     <div className="login-page">
+
       <div className="login-card">
 
         {/* HEADER */}
+
         <div className="login-header">
           <h1>
             Home<span>Store</span>
@@ -93,8 +160,11 @@ function Login() {
           </p>
         </div>
 
-        {/* LOGIN / SIGN UP NAVIGATION */}
+
+        {/* TABS */}
+
         <div className="auth-tabs">
+
           <button
             type="button"
             className={mode === "signup" ? "active" : ""}
@@ -110,9 +180,12 @@ function Login() {
           >
             Login
           </button>
+
         </div>
 
+
         {/* FORM */}
+
         <form
           onSubmit={
             mode === "login"
@@ -121,9 +194,11 @@ function Login() {
           }
         >
 
-          {/* NAMA - HANYA SIGN UP */}
+          {/* NAME */}
+
           {mode === "signup" && (
             <div className="form-group">
+
               <label>Nama</label>
 
               <input
@@ -133,11 +208,15 @@ function Login() {
                 onChange={(e) => setName(e.target.value)}
                 required
               />
+
             </div>
           )}
 
+
           {/* EMAIL */}
+
           <div className="form-group">
+
             <label>Email</label>
 
             <input
@@ -147,10 +226,14 @@ function Login() {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
+
           </div>
 
+
           {/* PASSWORD */}
+
           <div className="form-group">
+
             <label>Password</label>
 
             <input
@@ -160,11 +243,15 @@ function Login() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+
           </div>
 
-          {/* CONFIRM PASSWORD - HANYA SIGN UP */}
+
+          {/* CONFIRM PASSWORD */}
+
           {mode === "signup" && (
             <div className="form-group">
+
               <label>Konfirmasi Password</label>
 
               <input
@@ -176,17 +263,22 @@ function Login() {
                 }
                 required
               />
+
             </div>
           )}
 
-          {/* ERROR */}
+
+          {/* ERROR / MESSAGE */}
+
           {error && (
             <div className="login-error">
               {error}
             </div>
           )}
 
+
           {/* BUTTON */}
+
           <button
             type="submit"
             className="login-button"
@@ -198,11 +290,16 @@ function Login() {
               ? "Login"
               : "Sign Up"}
           </button>
+
         </form>
 
-        {/* FOOTER */}
+
+        {/* BOTTOM TEXT */}
+
         <div className="login-register">
+
           <p>
+
             {mode === "login"
               ? "Belum punya akun? "
               : "Sudah punya akun? "}
@@ -216,14 +313,19 @@ function Login() {
                 )
               }
             >
+
               {mode === "login"
                 ? "Sign Up"
                 : "Login"}
+
             </span>
+
           </p>
+
         </div>
 
       </div>
+
     </div>
   );
 }
